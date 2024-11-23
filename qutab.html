@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qutab Clicker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #ff7b00;
+            --secondary-color: #ff2600;
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Righteous', cursive;
+            letter-spacing: 2px;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(255, 123, 0, 0.5);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+
+        .click-effect {
+            position: fixed;
+            pointer-events: none;
+            animation: clickFade 0.5s ease-out forwards;
+            z-index: 1000;
+            font-family: 'Righteous', cursive;
+            color: var(--primary-color);
+            font-size: 24px;
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        @keyframes clickFade {
+            0% {
+                opacity: 1;
+                transform: scale(0.5) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.5) translateY(-50px);
+            }
+        }
+
+        .settings-tab {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 0 20px rgba(255, 123, 0, 0.3);
+        }
+
+        .settings-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1001;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 123, 0, 0.5);
+        }
+
+        .settings-button:hover {
+            transform: rotate(90deg);
+        }
+
+        .slider-container {
+            margin: 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 123, 0, 0.2);
+        }
+
+        .difficulty-slider {
+            -webkit-appearance: none;
+            width: 200px;
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            outline: none;
+        }
+
+        .difficulty-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .difficulty-label {
+            color: var(--primary-color);
+            font-size: 1.2em;
+            margin-top: 10px;
+            font-family: 'Righteous', cursive;
+        }
+
+        .setup-container {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            margin: 2rem;
+            box-shadow: 0 0 30px rgba(255, 123, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .background-options {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .background-option {
+            width: 100px;
+            height: 60px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.3s ease;
+        }
+
+        .background-option:hover {
+            transform: scale(1.1);
+        }
+
+        .background-option.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        .upgrade-button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 0 15px rgba(255, 123, 0, 0.3);
+        }
+
+        .upgrade-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .upgrade-button:active {
+            transform: scale(0.95);
+        }
+
+        .marketplace {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem;
+            width: 300px;
+            box-shadow: 0 0 25px rgba(255, 123, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .marketplace-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 2px solid var(--primary-color);
+            font-family: 'Poppins', sans-serif;
+            transition: transform 0.2s ease;
+        }
+
+        .marketplace-item:hover {
+            transform: scale(1.02);
+            background: rgba(255, 123, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        .buy-button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .buy-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .leaderboard {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem;
+            width: 300px;
+            box-shadow: 0 0 25px rgba(255, 123, 0, 0.2);
+            backdrop-filter: blur(5px);
+            cursor: pointer;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border-bottom: 2px solid var(--primary-color);
+            font-family: 'Poppins', sans-serif;
+            transition: transform 0.2s ease;
+        }
+
+        .leaderboard-item:hover {
+            transform: scale(1.02);
+            background: rgba(255, 123, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        .flag-icon {
+            width: 20px;
+            height: 15px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .stats-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            z-index: 1002;
+            width: 90%;
+            height: 90vh;
+            max-width: 1200px;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(255, 123, 0, 0.5);
+        }
+
+        .stats-panel h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 123, 0, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 800px; /* Increased height for bigger chart */
+            margin-top: 2rem;
+        }
+
+        .country-select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(255, 123, 0, 0.1);
+            border: 1px solid var(--primary-color);
+            color: var(--text-color);
+            border-radius: 5px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .country-select option {
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <button class="settings-button" onclick="toggleSettings()">⚙️</button>
+    <div class="settings-tab" id="settings-tab">
+        <h3>Change Background</h3>
+        <div class="background-options">
+            <div class="background-option" data-bg="b1" style="background-image: url('b1.png')"></div>
+            <div class="background-option" data-bg="b2" style="background-image: url('b2.png')"></div>
+            <div class="background-option" data-bg="b3" style="background-image: url('b3.png')"></div>
+            <div class="background-option" data-bg="b4" style="background-image: url('b4.png')"></div>
+            <div class="background-option" data-bg="b5" style="background-image: url('b5.png')"></div>
+        </div>
+    </div>
+
+    <div class="setup-container" id="setup-container">
+        <h1>Welcome to Qutab Clicker</h1>
+        <form id="player-name-form">
+            <input type="text" id="player-name-input" placeholder="Enter your name" required>
+            
+            <select id="country-select" class="country-select" required>
+                <option value="">Select your country</option>
+                <option value="US">United States</option>
+                <option value="JP">Japan</option>
+                <option value="IT">Italy</option>
+                <option value="FR">France</option>
+                <option value="IN">India</option>
+                <option value="BR">Brazil</option>
+                <option value="CN">China</option>
+                <option value="MX">Mexico</option>
+                <option value="DE">Germany</option>
+                <option value="RU">Russia</option>
+                <option value="TR">Turkey</option>
+                <option value="ES">Spain</option>
+                <option value="KR">South Korea</option>
+                <option value="AZ">Azerbaijan</option>
+                <option value="GE">Georgia</option>
+            </select>
+            
+            <div class="slider-container">
+                <h3>Select Difficulty:</h3>
+                <input type="range" min="1" max="4" value="2" class="difficulty-slider" id="difficulty-slider">
+                <div class="difficulty-label" id="difficulty-label">Normal</div>
+            </div>
+
+            <h3>Choose your background:</h3>
+            <div class="background-options">
+                <div class="background-option" data-bg="b1" style="background-image: url('b1.png')"></div>
+                <div class="background-option" data-bg="b2" style="background-image: url('b2.png')"></div>
+                <div class="background-option" data-bg="b3" style="background-image: url('b3.png')"></div>
+                <div class="background-option" data-bg="b4" style="background-image: url('b4.png')"></div>
+                <div class="background-option" data-bg="b5" style="background-image: url('b5.png')"></div>
+            </div>
+            <button type="submit" class="upgrade-button">Start Game</button>
+        </form>
+    </div>
+
+    <div class="game-container" id="game-container">
+        <div class="qutab-display">
+            <span id="qutab-count">0</span> qutabs
+        </div>
+
+        <div class="marketplace">
+            <h2>Marketplace</h2>
+            <div class="marketplace-item">
+                <span>Qatiq (Click Power)</span>
+                <button class="buy-button" onclick="buyItem('qatiq')">Buy (10 qutabs)</button>
+            </div>
+            <div class="marketplace-item">
+                <span>Sumag (Auto Chef)</span>
+                <button class="buy-button" onclick="buyItem('sumag')">Buy (50 qutabs)</button>
+            </div>
+            <div class="marketplace-item">
+                <span>Acika (Click Speed)</span>
+                <button class="buy-button" onclick="buyItem('acika')">Buy (30 qutabs)</button>
+            </div>
+            <div class="marketplace-item">
+                <span>Duses</span>
+                <button class="buy-button" onclick="buyItem('duses')">Buy (60 qutabs)</button>
+            </div>
+        </div>
+
+        <div class="leaderboard" onclick="toggleStatsPanel()">
+            <h2>Leaderboard</h2>
+            <ul id="leaderboard-list"></ul>
+        </div>
+    </div>
+
+    <div class="stats-panel" id="stats-panel">
+        <button class="stats-close" onclick="toggleStatsPanel()">×</button>
+        <h2>Player Statistics</h2>
+        <div class="stats-grid" id="stats-grid"></div>
+        <div class="chart-container">
+            <canvas id="scoreChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let qutabs = 0;
+        let clickPower = 1;
+        let autoChefPower = 0;
+        let clickSpeedMultiplier = 1;
+        let playerName = '';
+        let playerCountry = '';
+        let selectedBackground = '';
+        let leaderboard = [];
+        let difficulty = 2;
+        let botUpdateInterval;
+        let scoreHistory = {};
+        let scoreChart;
+        
+        const countries = [
+            {code: 'US', names: ['John', 'Sarah', 'Michael', 'Emily']},
+            {code: 'JP', names: ['Yuki', 'Hiroshi', 'Akiko', 'Kenji']},
+            {code: 'IT', names: ['Marco', 'Sofia', 'Giuseppe', 'Isabella']},
+            {code: 'FR', names: ['Pierre', 'Marie', 'Jean', 'Sophie']},
+            {code: 'IN', names: ['Raj', 'Priya', 'Amit', 'Deepa']},
+            {code: 'BR', names: ['Pedro', 'Ana', 'Carlos', 'Maria']},
+            {code: 'CN', names: ['Wei', 'Li', 'Zhang', 'Chen']},
+            {code: 'MX', names: ['Miguel', 'Rosa', 'Juan', 'Carmen']},
+            {code: 'DE', names: ['Hans', 'Anna', 'Klaus', 'Eva']},
+            {code: 'RU', names: ['Igor', 'Natasha', 'Vladimir', 'Olga']},
+            {code: 'TR', names: ['Mehmet', 'Ayşe', 'Ali', 'Fatma']},
+            {code: 'ES', names: ['Antonio', 'Isabel', 'Manuel', 'Carmen']},
+            {code: 'KR', names: ['Min-jun', 'Ji-woo', 'Seo-yeon', 'Jun-ho']},
+            {code: 'AZ', names: ['Eldar', 'Leyla', 'Rashad', 'Aysu','Iqbal', 'Vurgun', 'Azer', 'Vusal']},
+            {code: 'GE', names: ['Giorgi', 'Nino', 'Davit', 'Tamara']}
+        ];
+
+        const marketplaceItems = {
+            'qatiq': 10,  // Click Power upgrade
+            'sumag': 50,  // Auto Chef upgrade 
+            'acika': 30,  // Click Speed upgrade
+            'duses': 60
+        };
+
+        function generateRandomBot() {
+            const country = countries[Math.floor(Math.random() * countries.length)];
+            const name = country.names[Math.floor(Math.random() * country.names.length)];
+            return {
+                name: name,
+                country: country.code,
+                score: 0,
+                lastUpdateTime: Date.now(),
+                clickSpeed: Math.random() * 2 + 0.5, // Random clicks per second between 0.5 and 2.5
+                pauseProbability: Math.random() * 0.3 // Random probability of pausing between 0 and 0.3
+            };
+        }
+
+        const bots = Array.from({length: 15}, () => generateRandomBot());
+
+        const difficultySlider = document.getElementById('difficulty-slider');
+        const difficultyLabel = document.getElementById('difficulty-label');
+        const setupContainer = document.getElementById('setup-container');
+        const gameContainer = document.getElementById('game-container');
+        const playerNameForm = document.getElementById('player-name-form');
+        const qutabCount = document.getElementById('qutab-count');
+
+        function createClickEffect(x, y, value = '') {
+            const div = document.createElement('div');
+            div.className = 'click-effect';
+            div.textContent = value || `+${clickPower * clickSpeedMultiplier}`;
+            div.style.left = (x - 25) + 'px';
+            div.style.top = (y - 25) + 'px';
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 500);
+        }
+
+        function createRandomClickEffect() {
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            createClickEffect(x, y, '+1');
+        }
+
+        function toggleSettings() {
+            const settingsTab = document.getElementById('settings-tab');
+            settingsTab.style.display = settingsTab.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleStatsPanel() {
+            const statsPanel = document.getElementById('stats-panel');
+            statsPanel.style.display = statsPanel.style.display === 'none' ? 'block' : 'none';
+            
+            if (statsPanel.style.display === 'block') {
+                updateStatsPanel();
+                updateScoreChart();
+            }
+        }
+
+        function updateStatsPanel() {
+            const statsGrid = document.getElementById('stats-grid');
+            const allPlayers = [{name: playerName, score: Math.floor(qutabs), country: playerCountry}, ...bots];
+            
+            statsGrid.innerHTML = allPlayers.map(player => `
+                <div class="stat-card">
+                    <h3>${player.name}</h3>
+                    <img src="https://flagcdn.com/w20/${player.country.toLowerCase()}.png" 
+                         class="flag-icon" alt="${player.country} flag">
+                    <p>Score: ${player.score}</p>
+                    <p>Rank: ${allPlayers.sort((a,b) => b.score - a.score)
+                                        .findIndex(p => p.name === player.name) + 1}</p>
+                </div>
+            `).join('');
+        }
+
+        function updateScoreChart() {
+            const ctx = document.getElementById('scoreChart').getContext('2d');
+            
+            // Only update every 1.5 minutes
+            const timestamp = new Date().toLocaleTimeString();
+            const allPlayers = [{name: playerName, score: Math.floor(qutabs)}, ...bots];
+            
+            allPlayers.forEach(player => {
+                if (!scoreHistory[player.name]) {
+                    scoreHistory[player.name] = [];
+                }
+                scoreHistory[player.name].push({
+                    time: timestamp,
+                    score: player.score
+                });
+                
+                // Keep last 10 data points
+                if (scoreHistory[player.name].length > 10) {
+                    scoreHistory[player.name].shift();
+                }
+            });
+
+            if (scoreChart) {
+                scoreChart.destroy();
+            }
+
+            const topPlayers = allPlayers
+                .sort((a,b) => b.score - a.score)
+                .slice(0, 5); // Show only top 5 players
+
+            scoreChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: scoreHistory[topPlayers[0].name].map(entry => entry.time),
+                    datasets: topPlayers.map(player => ({
+                        label: player.name,
+                        data: scoreHistory[player.name].map(entry => entry.score),
+                        borderColor: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                        tension: 0.3,
+                        fill: false,
+                        borderWidth: 3
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1500 // Slower animations
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        setInterval(() => {
+            if (document.getElementById('stats-panel').style.display === 'block') {
+                updateScoreChart();
+            }
+        }, 90000); // Update chart every 1.5 minutes
+
+        difficultySlider.addEventListener('input', () => {
+            const values = ['Easy', 'Normal', 'Hard', 'Super Hard'];
+            difficulty = parseInt(difficultySlider.value);
+            difficultyLabel.textContent = values[difficulty - 1];
+        });
+
+        function buyItem(item) {
+            const cost = marketplaceItems[item];
+            if (qutabs >= cost) {
+                qutabs -= cost;
+                qutabCount.textContent = Math.floor(qutabs);
+                
+                // Apply the appropriate upgrade effect
+                if (item === 'qatiq') {
+                    clickPower++;
+                } else if (item === 'sumag') {
+                    autoChefPower++;
+                } else if (item === 'acika') {
+                    clickSpeedMultiplier *= 1.2;
+                }
+                
+                updateLeaderboard();
+                alert(`You bought ${item}!`);
+            } else {
+                alert('Not enough qutabs!');
+            }
+        }
+
+        function updateBotScores() {
+            const now = Date.now();
+            bots.forEach(bot => {
+                // Calculate time since last update
+                const timeDiff = (now - bot.lastUpdateTime) / 1000; // Convert to seconds
+                
+                // Check if bot is "pausing"
+                if (Math.random() > bot.pauseProbability) {
+                    // Calculate score increase based on click speed and time
+                    const baseIncrement = bot.clickSpeed * timeDiff;
+                    
+                    // Add random variation (-30% to +30%)
+                    const variation = (Math.random() * 0.6) - 0.3;
+                    
+                    // Apply difficulty multiplier
+                    const difficultyMultiplier = 
+                        difficulty === 1 ? 0.5 : 
+                        difficulty === 2 ? 1 : 
+                        difficulty === 3 ? 2 : 3;
+                    
+                    bot.score += Math.floor(baseIncrement * (1 + variation) * difficultyMultiplier);
+                }
+                
+                bot.lastUpdateTime = now;
+            });
+            updateLeaderboard();
+        }
+
+        function startGame() {
+            if (botUpdateInterval) clearInterval(botUpdateInterval);
+            qutabs = 0;
+            bots.forEach(bot => {
+                bot.score = 0;
+                bot.lastUpdateTime = Date.now();
+            });
+            const updateSpeed = 
+                difficulty === 1 ? 2000 : 
+                difficulty === 2 ? 1000 : 
+                difficulty === 3 ? 500 : 250;
+            botUpdateInterval = setInterval(updateBotScores, updateSpeed);
+        }
+
+        playerNameForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!selectedBackground) {
+                alert('Please select a background!');
+                return;
+            }
+            playerName = document.getElementById('player-name-input').value;
+            playerCountry = document.getElementById('country-select').value;
+            if (!playerCountry) {
+                alert('Please select your country!');
+                return;
+            }
+            setupContainer.style.display = 'none';
+            gameContainer.style.display = 'block';
+            document.body.style.backgroundImage = `url('${selectedBackground}.png')`;
+            startGame();
+            updateLeaderboard();
+        });
+
+        function updateLeaderboard() {
+            if (playerName) {
+                const allPlayers = [
+                    {name: playerName, score: Math.floor(qutabs), country: playerCountry},
+                    ...bots
+                ];
+                
+                allPlayers.sort((a, b) => b.score - a.score);
+                
+                const leaderboardList = document.getElementById('leaderboard-list');
+                leaderboardList.innerHTML = allPlayers
+                    .map((player, index) => `
+                        <li class="leaderboard-item">
+                            <span>
+                                <img src="https://flagcdn.com/w20/${player.country.toLowerCase()}.png" 
+                                     class="flag-icon" alt="${player.country} flag">
+                                #${index + 1} ${player.name}
+                            </span>
+                            <span>${player.score} qutabs</span>
+                        </li>
+                    `)
+                    .join('');
+
+                // Only update stats and chart if stats panel is visible
+                if (document.getElementById('stats-panel').style.display === 'block') {
+                    updateStatsPanel();
+                    updateScoreChart();
+                }
+            }
+        }
+
+        document.querySelectorAll('.background-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.background-option').forEach(opt => 
+                    opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedBackground = option.dataset.bg;
+                document.body.style.backgroundImage = `url('${selectedBackground}.png')`;
+            });
+        });
+
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('.upgrade-button') && 
+                !e.target.closest('.leaderboard') && 
+                !e.target.closest('.settings-tab') &&
+                !e.target.closest('.settings-button') &&
+                !e.target.closest('.marketplace')) {
+                qutabs += clickPower * clickSpeedMultiplier;
+                qutabCount.textContent = Math.floor(qutabs);
+                updateLeaderboard();
+                createClickEffect(e.clientX, e.clientY);
+            }
+        });
+
+        setInterval(() => {
+            if (autoChefPower > 0) {
+                qutabs += autoChefPower;
+                qutabCount.textContent = Math.floor(qutabs);
+                updateLeaderboard();
+            }
+        });
+
+        autoChefUpgrade.addEventListener('click', () => {
+            if (qutabs >= 50) {
+                qutabs -= 50;
+                autoChefPower++;
+                qutabCount.textContent = Math.floor(qutabs);
+                updateLeaderboard();
+            }
+        });
+
+        clickSpeedUpgrade.addEventListener('click', () => {
+            if (qutabs >= 30) {
+                qutabs -= 30;
+                clickSpeedMultiplier *= 1.2;
+                qutabCount.textContent = Math.floor(qutabs);
+                updateLeaderboard();
+            }
+        });
+
+        setInterval(() => {
+            if (autoChefPower > 0) {
+                qutabs += autoChefPower;
+                qutabCount.textContent = Math.floor(qutabs);
+                updateLeaderboard();
+                for (let i = 0; i < autoChefPower; i++) {
+                    setTimeout(createRandomClickEffect, Math.random() * 1000);
+                }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
